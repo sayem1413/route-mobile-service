@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'rml_bd' => [
+        'url' => env('RML_CONNECT_BD_SMS_URL'),
+        'username' => env('RML_CONNECT_BD_SMS_USERNAME'),
+        'password' => env('RML_CONNECT_BD_SMS_PASSWORD'),
+    ],
+
+    'rml_intl' => [
+        'url' => env('RML_CONNECT_INTL_SMS_URL'),
+        'username' => env('RML_CONNECT_INTL_SMS_USERNAME'),
+        'password' => env('RML_CONNECT_INTL_SMS_PASSWORD'),
+    ],
+
 ];
