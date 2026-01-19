@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('rm_bulk_sms_details', function (Blueprint $table) {
             $table->id();
             $table->string('to');
-            $table->string('from')->nullable();
+            $table->string('sender')->nullable();
             $table->text('message');
-            $table->string('gateway');
-            $table->string('provider_message_id')->nullable();
-            $table->enum('status', ['queued', 'sent', 'delivered', 'failed'])->default('queued');
-            $table->json('provider_response')->nullable();
+            $table->string('message_id')->nullable();
+            // $table->enum('status', ['queued', 'sent', 'delivered', 'failed'])->default('queued');
+            $table->string('status')->nullable();
+            $table->json('response')->nullable();
             $table->timestamps();
         });
     }
