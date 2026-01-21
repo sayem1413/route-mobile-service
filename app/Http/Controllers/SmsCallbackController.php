@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Sms\SmsManager;
+use App\Services\Manager\SmsManager;
 use App\Models\RmBulkSms;
 use Illuminate\Http\Request;
 

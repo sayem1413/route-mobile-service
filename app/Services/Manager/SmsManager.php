@@ -1,8 +1,8 @@
 <?php
-namespace App\Services\Sms;
+namespace App\Services\Manager;
 
 use App\Contracts\SmsGatewayInterface;
-use App\Services\Sms\Gateways\RouteMobileGateway;
+use App\Services\Gateways\RouteMobileGateway;
 
 class SmsManager
 {

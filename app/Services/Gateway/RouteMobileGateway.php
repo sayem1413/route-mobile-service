@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Sms\Gateways;
+namespace App\Services\Gateways;
 
 use App\Contracts\SmsGatewayInterface;
 use App\DTOs\SmsMessageDTO;
