@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rm_bulk_sms_details', function (Blueprint $table) {
+        Schema::create('rm_bulk_sms', function (Blueprint $table) {
             $table->id();
             $table->string('to');
             $table->string('sender')->nullable();
@@ -20,6 +20,10 @@ return new class extends Migration
             // $table->enum('status', ['queued', 'sent', 'delivered', 'failed'])->default('queued');
             $table->string('status')->nullable();
             $table->json('response')->nullable();
+
+            $table->timestamp('sent_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
+
             $table->timestamps();
         });
     }
@@ -29,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rm_bulk_sms_details');
+        Schema::dropIfExists('rm_bulk_sms');
     }
 };
