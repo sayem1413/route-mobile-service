@@ -2,6 +2,7 @@
 namespace App\Contracts;
 
 use App\DTOs\SmsMessageDTO;
+use App\DTOs\SmsDTO;
 
 interface SmsGatewayInterface
 {
