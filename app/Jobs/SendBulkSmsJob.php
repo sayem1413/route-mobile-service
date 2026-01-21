@@ -5,7 +5,7 @@ namespace App\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use App\DTOs\SmsMessageDTO;
-use App\Services\Sms\SmsManager;
+use App\Services\Manager\SmsManager;
 
 class SendBulkSmsJob implements ShouldQueue
 {
