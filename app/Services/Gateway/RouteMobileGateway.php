@@ -1,23 +1,23 @@
 <?php
-namespace App\Services\Gateways;
+namespace App\Services\Gateway;
 
-use App\Contracts\SmsGatewayInterface;
+use App\Contracts\RouteMobileContract;
 use App\DTOs\SmsMessageDTO;
-use App\DTOs\SmsDTO;
+use App\DTOs\RouteMobileBulkSmsDTO;
 use Illuminate\Support\Facades\Http;
 use Exception;
 
-class RouteMobileGateway implements SmsGatewayInterface
+class RouteMobileGateway implements RouteMobileContract
 {
-    public function send(SmsDTO $dto): array
+    public function sendBulkSmsBd(RouteMobileBulkSmsDTO $dto): array
     {
         $data = [
             'username'    => config('services.rml_bd.username'),
             'password'    => config('services.rml_bd.password'),
             'dlr'         => 1,
             'type'        => 0,
-            'source'      => 'AmiProbashi',
-            'destination' => '88' . $dto->mobile,
+            'source'      => config('services.rml_bd.source'),
+            'destination' => '88' . $dto->destination,
             'message'     => $dto->message,
         ];
 

@@ -2,11 +2,11 @@
 namespace App\Contracts;
 
 use App\DTOs\SmsMessageDTO;
-use App\DTOs\SmsDTO;
+use App\DTOs\RouteMobileBulkSmsDTO;
 
-interface SmsGatewayInterface
+interface RouteMobileContract
 {
-    public function send(SmsDTO $dto): array;
+    public function sendBulkSmsBd(RouteMobileBulkSmsDTO $dto): array;
     
     public function sendBulk(SmsMessageDTO $message): array;
 

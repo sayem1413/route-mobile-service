@@ -1,12 +1,12 @@
 <?php
 namespace App\Services\Manager;
 
-use App\Contracts\SmsGatewayInterface;
-use App\Services\Gateways\RouteMobileGateway;
+use App\Contracts\RouteMobileContract;
+use App\Services\Gateway\RouteMobileGateway;
 
 class SmsManager
 {
-    public function driver(): SmsGatewayInterface
+    public function driver(): RouteMobileContract
     {
         return match (config('sms.default')) {
             'route_mobile' => app(RouteMobileGateway::class),

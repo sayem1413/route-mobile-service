@@ -35,10 +35,14 @@ return [
         ],
     ],
 
+    /*
+    * Only use this config for first implementation 
+    */
     'rml_bd' => [
         'url' => env('RML_CONNECT_BD_SMS_URL'),
         'username' => env('RML_CONNECT_BD_SMS_USERNAME'),
         'password' => env('RML_CONNECT_BD_SMS_PASSWORD'),
+        'source' => env('RML_CONNECT_BD_SMS_SOURCE'),
     ],
 
     'rml_intl' => [

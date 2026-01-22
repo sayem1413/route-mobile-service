@@ -2,10 +2,10 @@
 
 namespace App\DTOs;
 
-class SmsDTO
+class RouteMobileBulkSmsDTO
 {
     public function __construct(
-        public string $mobile,
+        public string $destination,
         public string $message,
         public string $country = 'BD'
     ) {}
