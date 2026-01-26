@@ -21,7 +21,9 @@ class RmBulkSms extends Model
         'message',
         'message_id',
         'status',
+        'status_code',
         'response',
+        'gateway_error',
         'sent_at',
         'delivered_at',
     ];
@@ -30,7 +32,6 @@ class RmBulkSms extends Model
      * Cast attributes
      */
     protected $casts = [
-        'response'     => 'array',
         'sent_at'      => 'datetime',
         'delivered_at' => 'datetime',
     ];
@@ -54,38 +55,66 @@ class RmBulkSms extends Model
     }
 
     /**
-     * Mark SMS as sent
+     * Mark as sent (Route Mobile accepted)
      */
-    public function markAsSent(string|null $messageId = null, array|null $response = null): void
-    {
+    public function markAsSent(
+        ?string $messageId = null,
+        ?string $statusCode = null,
+        array|string|null $response = null,
+        string|null $gatewayError = null
+    ): void {
         $this->update([
-            'status'     => self::STATUS_SENT,
-            'message_id' => $messageId ?? $this->message_id,
-            'response'   => $response ?? $this->response,
-            'sent_at'    => Carbon::now(),
+            'status'      => self::STATUS_SENT,
+            'message_id'  => $messageId ?? $this->message_id,
+            'status_code' => $statusCode,
+            'response'      => $response ?? $this->response,
+            'gateway_error' => $gatewayError,
+            'sent_at'     => Carbon::now(),
         ]);
     }
 
     /**
-     * Mark SMS as delivered
+     * Mark as delivered (DLR)
      */
-    public function markAsDelivered(array|null $response = null): void
-    {
+    public function markAsDelivered(
+        ?string $statusCode = null,
+        array|string|null $response = null
+    ): void {
         $this->update([
             'status'       => self::STATUS_DELIVERED,
-            'response'     => $response ?? $this->response,
+            'status_code'  => $statusCode,
+            'response'     => $response,
             'delivered_at' => Carbon::now(),
         ]);
     }
 
     /**
-     * Mark SMS as failed
+     * Mark as failed
      */
-    public function markAsFailed(array|string|null $response = null): void
-    {
+    public function markAsFailed(
+        ?string $statusCode = null,
+        array|string|null $response = null,
+        string|null $gatewayError = null
+    ): void {
         $this->update([
-            'status'   => self::STATUS_FAILED,
-            'response' => $response,
+            'status'      => self::STATUS_FAILED,
+            'status_code' => $statusCode,
+            'response'    => $response ?? $this->response,
+            'gateway_error' => $gatewayError,
         ]);
+    }
+
+    /**
+     * Map Route Mobile DLR status to internal status
+     */
+    public static function mapRouteMobileStatus(string $rmStatus): string
+    {
+        return match (strtoupper($rmStatus)) {
+            'DELIVRD', 'DELIVERED' => self::STATUS_DELIVERED,
+            'SENT', 'SUBMITTED'    => self::STATUS_SENT,
+            'FAILED', 'UNDELIV', 'EXPIRED', 'REJECTED'
+                                   => self::STATUS_FAILED,
+            default                => self::STATUS_QUEUED,
+        };
     }
 }

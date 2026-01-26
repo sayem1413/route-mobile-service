@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Gateway;
 
 use App\Contracts\RouteMobileContract;
@@ -16,22 +17,35 @@ class RouteMobileGateway implements RouteMobileContract
     {
         $response = $this->curlForSendBulkSmsBD($dto);
 
-        $resBody = $response['res_body'];
-        [$code, $mobile, $messageId] = explode('|', $resBody);
+        $resStatus = $response['success'];
+        $statusCode = null;
+        $mobile     = $dto->destination;
+        $messageId  = null;
+        $gatewayError = null;
 
-        RmBulkSms::create([
-            'to' => $mobile,
+        if ($resStatus === true && str_contains($response['res_body'], '|')) {
+            $parsed = $this->parseRouteMobileResponse($response['res_body']);
+
+            $statusCode = $parsed['status_code'];
+            $mobile     = $parsed['mobile'] ?? $dto->destination;
+            $messageId  = $parsed['message_id'];
+        } elseif (!$resStatus) {
+            // If API call failed, store error
+            $gatewayError = $response['res_body'];
+        }
+
+        $remBulkSms = RmBulkSms::create([
+            'to' => $dto->destination ?: $mobile,
             'message' => $dto->message,
             'message_id' => $messageId,
-            'status' => $response['success'],
-            'status_code' => $code,
+            'status' => ($resStatus && $messageId) ? RmBulkSms::STATUS_SENT : RmBulkSms::STATUS_FAILED,
+            'status_code' => $statusCode,
             'response' => $response['res_body'],
+            'gateway_error' => $gatewayError,
             'sent_at' => now(),
-            'delivered_at' => $response['success'] ? now() : null,
         ]);
 
-        return $response;
-
+        return $remBulkSms->toArray();
     }
 
     public function sendBulk(SmsMessageDTO $message): array
@@ -77,12 +91,26 @@ class RouteMobileGateway implements RouteMobileContract
                 'success' => $response->ok(),
                 'res_body'     => $response->body(),
             ];
-
         } catch (Exception $e) {
             return [
                 'success' => false,
                 'res_body'     => $e->getMessage(),
             ];
-        }    
+        }
+    }
+
+    private function parseRouteMobileResponse(string $resBody): array
+    {
+        [$status, $mobile, $messageId] = array_pad(
+            explode('|', trim($resBody)),
+            3,
+            null
+        );
+
+        return [
+            'status_code' => $status,
+            'mobile'      => $mobile,
+            'message_id'  => $messageId,
+        ];
     }
 }

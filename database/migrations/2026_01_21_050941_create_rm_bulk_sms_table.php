@@ -17,9 +17,15 @@ return new class extends Migration
             $table->string('sender')->nullable();
             $table->text('message');
             $table->string('message_id')->nullable();
-            // $table->enum('status', ['queued', 'sent', 'delivered', 'failed'])->default('queued');
-            $table->string('status')->nullable();
-            $table->json('response')->nullable();
+            $table->enum('status', [
+                'queued',     // accepted by RM
+                'sent',       // sent to operator
+                'delivered',  // delivered to handset
+                'failed'      // any failure
+            ])->default('queued');
+            $table->string('status_code')->nullable();  // RM raw status code from response like 1701 from 1701|8801680611205|sdfsdf-sdfsdf-dfgefg
+            $table->string('response')->nullable();
+            $table->text('gateway_error')->nullable(); // new column for exceptions/errors
 
             $table->timestamp('sent_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
