@@ -18,19 +18,20 @@ class RouteMobileGateway implements RouteMobileContract
         $response = $this->curlForSendBulkSmsBD($dto);
 
         $resStatus = $response['success'];
+        $resBody = $response['res_body'];
         $statusCode = null;
         $mobile     = $dto->destination;
         $messageId  = null;
         $gatewayError = null;
 
-        if ($resStatus === true && str_contains($response['res_body'], '|')) {
-            $parsed = $this->parseRouteMobileResponse($response['res_body']);
+        if ($resStatus === true && str_contains($resBody, '|')) {
+            $parsed = $this->parseRouteMobileResponse($resBody);
 
             $statusCode = $parsed['status_code'];
             $mobile     = $parsed['mobile'] ?? $dto->destination;
             $messageId  = $parsed['message_id'];
         } elseif (!$resStatus) {
-            $gatewayError = $response['res_body'];
+            $gatewayError = $resBody;
         }
 
         $remBulkSms = RmBulkSms::create([
@@ -39,7 +40,7 @@ class RouteMobileGateway implements RouteMobileContract
             'message_id' => $messageId,
             'status' => ($resStatus && $messageId) ? RmBulkSms::STATUS_SENT : RmBulkSms::STATUS_FAILED,
             'status_code' => $statusCode,
-            'response' => $response['res_body'],
+            'response' => $resBody,
             'gateway_error' => $gatewayError,
             'sent_at' => now(),
         ]);
