@@ -30,7 +30,6 @@ class RouteMobileGateway implements RouteMobileContract
             $mobile     = $parsed['mobile'] ?? $dto->destination;
             $messageId  = $parsed['message_id'];
         } elseif (!$resStatus) {
-            // If API call failed, store error
             $gatewayError = $response['res_body'];
         }
 
