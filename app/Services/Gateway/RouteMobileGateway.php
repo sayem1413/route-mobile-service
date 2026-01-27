@@ -3,7 +3,6 @@
 namespace App\Services\Gateway;
 
 use App\Contracts\RouteMobileContract;
-use App\DTOs\SmsMessageDTO;
 use App\DTOs\RouteMobileBulkSmsDTO;
 use App\Models\RmBulkSms;
 use Illuminate\Support\Carbon;
@@ -12,9 +11,9 @@ use Exception;
 
 class RouteMobileGateway implements RouteMobileContract
 {
-    public function sendBulkSmsBd(RouteMobileBulkSmsDTO $dto): array
+    public function sendSmsBd(RouteMobileBulkSmsDTO $dto): array
     {
-        $response = $this->curlForSendBulkSmsBD($dto);
+        $response = $this->curlForRMSendSmsBD($dto);
 
         $resStatus = $response['success'];
         $resBody = $response['res_body'];
@@ -24,7 +23,7 @@ class RouteMobileGateway implements RouteMobileContract
         $gatewayError = null;
 
         if ($resStatus === true && str_contains($resBody, '|')) {
-            $parsed = $this->parseRouteMobileResponse($resBody);
+            $parsed = $this->parseRMSmsResponse($resBody);
 
             $statusCode = $parsed['status_code'];
             $mobile     = $parsed['mobile'] ?? $dto->destination;
@@ -47,38 +46,7 @@ class RouteMobileGateway implements RouteMobileContract
         return $remBulkSms->toArray();
     }
 
-    public function sendBulk(SmsMessageDTO $message): array
-    {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . config('sms.route_mobile.token'),
-        ])->post(config('sms.route_mobile.endpoint'), [
-            'to'      => $message->recipients,
-            'message' => $message->message,
-            'sender'  => $message->senderId,
-        ]);
-
-        return $response->json();
-    }
-
-    public function parseDeliveryReport(array $payload): array
-    {
-        return [
-            'sSender' => $payload['sSender'] ?? null,
-            'sMobileNo' => $payload['sMobileNo'] ?? null,
-            'dtSubmit' => $payload['dtSubmit'] ?? null,
-            'dtDone' => $payload['dtDone'] ?? null,
-            'sMessageId' => $payload['sMessageId'] ?? null,
-            'iCostPerSms' => $payload['iCostPerSms'] ?? null,
-            'iCharge' => $payload['iCharge'] ?? null,
-            'iMCCMNC' => $payload['iMCCMNC'] ?? null,
-            'iErrCode' => $payload['iErrCode'] ?? null,
-            'sTagName' => $payload['sTagName'] ?? null,
-            'sUdf1' => $payload['sUdf1'] ?? null,
-            'sUdf2' => $payload['sUdf2'] ?? null,
-        ];
-    }
-
-    private function curlForSendBulkSmsBD(RouteMobileBulkSmsDTO $dto)
+    private function curlForRMSendSmsBD(RouteMobileBulkSmsDTO $dto)
     {
         $data = [
             'username'    => config('services.rml_bd.username'),
@@ -107,7 +75,7 @@ class RouteMobileGateway implements RouteMobileContract
         }
     }
 
-    private function parseRouteMobileResponse(string $resBody): array
+    private function parseRMSmsResponse(string $resBody): array
     {
         [$status, $mobile, $messageId] = array_pad(
             explode('|', trim($resBody)),

@@ -22,7 +22,7 @@ class RouteMobileSMSController extends Controller
             destination: $request->validated('destination'),
             message: $request->validated('message'),
         );
-        $bulkSmsBdResponse = $this->routeMobileService->sendBulkSmsBd($dto);
+        $bulkSmsBdResponse = $this->routeMobileService->sendSmsBd($dto);
 
         return response()->json([
             'data' => $bulkSmsBdResponse
