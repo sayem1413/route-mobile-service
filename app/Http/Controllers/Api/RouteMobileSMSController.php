@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SendBulkSmsBdRequest;
+use App\Http\Requests\SendSingleRMSmsBdRequest;
 use App\Contracts\RouteMobileContract;
-use App\DTOs\RouteMobileBulkSmsDTO;
+use App\DTOs\RouteMobileSingleSmsDTO;
 
 class RouteMobileSMSController extends Controller
 {
@@ -16,16 +16,24 @@ class RouteMobileSMSController extends Controller
         $this->routeMobileService = $routeMobileService;
     }
 
-    public function sendBulkSmsBd(SendBulkSmsBdRequest $request)
+    public function sendBulkSmsBd(SendSingleRMSmsBdRequest $request)
     {
-        $dto = new RouteMobileBulkSmsDTO(
-            destination: $request->validated('destination'),
-            message: $request->validated('message'),
-        );
-        $bulkSmsBdResponse = $this->routeMobileService->sendSmsBd($dto);
+        try {
+            $dto = RouteMobileSingleSmsDTO::fromArray(
+                $request->validated()
+                // []
+            );
+        
+            $bulkSmsBdResponse = $this->routeMobileService->sendSmsBd($dto);
 
-        return response()->json([
-            'data' => $bulkSmsBdResponse
-        ], 200);
+            return response()->json([
+                'data' => $bulkSmsBdResponse
+            ], 200);
+        } catch (\Exception $e) {
+            dd('Ok');
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 422);
+        }
     }
 }

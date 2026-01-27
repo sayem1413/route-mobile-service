@@ -3,7 +3,7 @@
 namespace App\Services\Gateway;
 
 use App\Contracts\RouteMobileContract;
-use App\DTOs\RouteMobileBulkSmsDTO;
+use App\DTOs\RouteMobileSingleSmsDTO;
 use App\Models\RmBulkSms;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -11,7 +11,7 @@ use Exception;
 
 class RouteMobileGateway implements RouteMobileContract
 {
-    public function sendSmsBd(RouteMobileBulkSmsDTO $dto): array
+    public function sendSmsBd(RouteMobileSingleSmsDTO $dto): array
     {
         $response = $this->curlForRMSendSmsBD($dto);
 
@@ -46,7 +46,7 @@ class RouteMobileGateway implements RouteMobileContract
         return $remBulkSms->toArray();
     }
 
-    private function curlForRMSendSmsBD(RouteMobileBulkSmsDTO $dto)
+    private function curlForRMSendSmsBD(RouteMobileSingleSmsDTO $dto)
     {
         $data = [
             'username'    => config('services.rml_bd.username'),

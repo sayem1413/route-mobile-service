@@ -1,7 +1,7 @@
 <?php
 namespace App\DTOs;
 
-class SmsMessageDTO
+class BulkNumberSmsDTO
 {
     public function __construct(
         public array $recipients,
