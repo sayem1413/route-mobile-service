@@ -10,8 +10,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Exception;
 
-use function Symfony\Component\Clock\now;
-
 class RouteMobileGateway implements RouteMobileContract
 {
     public function sendBulkSmsBd(RouteMobileBulkSmsDTO $dto): array

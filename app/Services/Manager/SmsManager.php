@@ -1,15 +1,15 @@
 <?php
 namespace App\Services\Manager;
 
-use App\Contracts\RouteMobileContract;
-use App\Services\Gateway\RouteMobileGateway;
+use App\Contracts\SMSDriverContract;
+use App\Services\SMSDriverService;
 
 class SmsManager
 {
-    public function driver(): RouteMobileContract
+    public function driver($driver): SMSDriverContract
     {
-        return match ('route_mobile') {
-            'route_mobile' => app(RouteMobileGateway::class),
+        return match ($driver) {
+            'route_mobile' => app(SMSDriverService::class),
             default => throw new \Exception('SMS driver not supported'),
         };
     }

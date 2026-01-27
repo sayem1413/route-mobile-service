@@ -9,15 +9,22 @@ use Illuminate\Support\Carbon;
 
 class SmsCallbackController extends Controller
 {
-    public function routeMobile(Request $request, SmsManager $smsManager)
-    {
-        $data = $smsManager->driver()->parseDeliveryReport($request->all());
+    protected SmsManager $smsManager;
 
-        /* RmBulkSms::where('message_id', $data['sMessageId'])
+    public function __construct(SmsManager $smsManager)
+    {
+        $this->smsManager = $smsManager;
+    }
+
+    public function routeMobile(Request $request)
+    {
+        $data = $this->smsManager->driver('route_mobile')->parseRmDlrCallbackData($request->all());
+
+        RmBulkSms::where('message_id', $data['sMessageId'])
             ->update([
                 'status' => $data['status'],
                 'delivered_at' => Carbon::now(),
-            ]); */
+            ]);
 
         return response()->json(['ok' => true]);
     }
