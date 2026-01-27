@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SendSingleRMSmsBdRequest extends FormRequest
+class RMSingleSmsSendRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,6 +31,11 @@ class SendSingleRMSmsBdRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+            ],
+            'country' => [
+                'nullable', 
+                'string', 
+                'size:2'
             ],
         ];
     }
