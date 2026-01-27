@@ -6,6 +6,7 @@ use App\Contracts\RouteMobileContract;
 use App\DTOs\SmsMessageDTO;
 use App\DTOs\RouteMobileBulkSmsDTO;
 use App\Models\RmBulkSms;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Exception;
 
@@ -42,7 +43,7 @@ class RouteMobileGateway implements RouteMobileContract
             'status_code' => $statusCode,
             'response' => $resBody,
             'gateway_error' => $gatewayError,
-            'sent_at' => now(),
+            'sent_at' => Carbon::now(),
         ]);
 
         return $remBulkSms->toArray();
@@ -64,9 +65,18 @@ class RouteMobileGateway implements RouteMobileContract
     public function parseDeliveryReport(array $payload): array
     {
         return [
-            'message_id' => $payload['messageId'] ?? null,
-            'status'     => $payload['status'] ?? null,
-            'delivered_at' => $payload['deliveredAt'] ?? null,
+            'sSender' => $payload['sSender'] ?? null,
+            'sMobileNo' => $payload['sMobileNo'] ?? null,
+            'dtSubmit' => $payload['dtSubmit'] ?? null,
+            'dtDone' => $payload['dtDone'] ?? null,
+            'sMessageId' => $payload['sMessageId'] ?? null,
+            'iCostPerSms' => $payload['iCostPerSms'] ?? null,
+            'iCharge' => $payload['iCharge'] ?? null,
+            'iMCCMNC' => $payload['iMCCMNC'] ?? null,
+            'iErrCode' => $payload['iErrCode'] ?? null,
+            'sTagName' => $payload['sTagName'] ?? null,
+            'sUdf1' => $payload['sUdf1'] ?? null,
+            'sUdf2' => $payload['sUdf2'] ?? null,
         ];
     }
 

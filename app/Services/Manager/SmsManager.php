@@ -8,7 +8,7 @@ class SmsManager
 {
     public function driver(): RouteMobileContract
     {
-        return match (config('sms.default')) {
+        return match ('route_mobile') {
             'route_mobile' => app(RouteMobileGateway::class),
             default => throw new \Exception('SMS driver not supported'),
         };

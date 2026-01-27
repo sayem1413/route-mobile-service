@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Manager\SmsManager;
 use App\Models\RmBulkSms;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class SmsCallbackController extends Controller
 {
@@ -12,11 +13,11 @@ class SmsCallbackController extends Controller
     {
         $data = $smsManager->driver()->parseDeliveryReport($request->all());
 
-        RmBulkSms::where('message_id', $data['message_id'])
+        /* RmBulkSms::where('message_id', $data['sMessageId'])
             ->update([
                 'status' => $data['status'],
-                'delivered_at' => $data['delivered_at'],
-            ]);
+                'delivered_at' => Carbon::now(),
+            ]); */
 
         return response()->json(['ok' => true]);
     }
