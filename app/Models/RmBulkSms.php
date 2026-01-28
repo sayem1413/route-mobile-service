@@ -106,15 +106,28 @@ class RmBulkSms extends Model
 
     /**
      * Map Route Mobile DLR status to internal status
+     * 
+     * 
+     * Status of the message from DLR push API from route mobile. 
+     * ('DELIVRD', 'ACKED', 'ENROUTE', 'ACCEPTED', 'UNKNOWN', 'EXPIRED', 'DELETED', 'UNDELIV', 'REJECTD')
      */
+
     public static function mapRouteMobileStatus(string $rmStatus): string
     {
         return match (strtoupper($rmStatus)) {
-            'DELIVRD', 'DELIVERED' => self::STATUS_DELIVERED,
-            'SENT', 'SUBMITTED'    => self::STATUS_SENT,
-            'FAILED', 'UNDELIV', 'EXPIRED', 'REJECTED'
-                                   => self::STATUS_FAILED,
-            default                => self::STATUS_QUEUED,
+            'DELIVRD' => self::STATUS_DELIVERED,
+
+            'ACKED',
+            'ENROUTE',
+            'ACCEPTED' => self::STATUS_SENT,
+
+            'UNKNOWN',
+            'EXPIRED',
+            'DELETED',
+            'UNDELIV',
+            'REJECTD' => self::STATUS_FAILED,
+
+            default => self::STATUS_QUEUED,
         };
     }
 }

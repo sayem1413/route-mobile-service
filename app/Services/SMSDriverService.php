@@ -11,6 +11,7 @@ class SMSDriverService implements SMSDriverContract
         return [
             'sSender' => $payload['sSender'] ?? null,
             'sMobileNo' => $payload['sMobileNo'] ?? null,
+            'sStatus' => $payload['sStatus'] ?? null,
             'dtSubmit' => $payload['dtSubmit'] ?? null,
             'dtDone' => $payload['dtDone'] ?? null,
             'sMessageId' => $payload['sMessageId'] ?? null,

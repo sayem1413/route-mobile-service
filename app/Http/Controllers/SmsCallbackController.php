@@ -6,6 +6,7 @@ use App\Services\Manager\SmsManager;
 use App\Models\RmBulkSms;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SmsCallbackController extends Controller
 {
@@ -18,14 +19,42 @@ class SmsCallbackController extends Controller
 
     public function routeMobile(Request $request)
     {
-        $data = $this->smsManager->driver('route_mobile')->parseRmDlrCallbackData($request->all());
+        $data = $this->smsManager
+            ->driver('route_mobile')
+            ->parseRmDlrCallbackData($request->all());
 
-        RmBulkSms::where('message_id', $data['sMessageId'])
-            ->update([
-                'status' => $data['status'],
-                'delivered_at' => Carbon::now(),
+        Log::info('Route Mobile DLR Callback', $data);
+
+        if (empty($data['sMessageId'])) {
+            return response()->json(['error' => 'Message ID missing'], 400);
+        }
+
+        $sms = RmBulkSms::where('message_id', $data['sMessageId'])->first();
+
+        if (!$sms) {
+            return response()->json(['error' => 'SMS not found'], 404);
+        }
+        $rmStatus = $data['sStatus'] ?? null;
+        $finalStatus = RmBulkSms::mapRouteMobileStatus($rmStatus);
+
+        if ($finalStatus === RmBulkSms::STATUS_DELIVERED) {
+            $sms->markAsDelivered(
+                $rmStatus,
+                $data
+            );
+        } elseif ($finalStatus === RmBulkSms::STATUS_FAILED) {
+            $sms->markAsFailed(
+                $rmStatus,
+                $data,
+                "Delivery report (failed)"
+            );
+        } else {
+            $sms->update([
+                'status_code' => $rmStatus,
+                'response'    => $data,
             ]);
+        }
 
-        return response()->json(['ok' => true]);
+        return response()->json(['success' => true], 200);
     }
 }
