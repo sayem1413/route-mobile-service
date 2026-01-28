@@ -25,16 +25,19 @@ class SmsCallbackController extends Controller
 
         Log::info('Route Mobile DLR Callback', $data);
 
-        if (empty($data['sMessageId'])) {
+        $dlrMessageId = $data['sMessageId'];
+
+        if (empty($dlrMessageId)) {
             return response()->json(['error' => 'Message ID missing'], 400);
         }
 
-        $sms = RmBulkSms::where('message_id', $data['sMessageId'])->first();
+        $sms = RmBulkSms::where('message_id', $dlrMessageId)->first();
 
         if (!$sms) {
             return response()->json(['error' => 'RMSMS Data not found'], 404);
         }
         $rmStatus = $data['sStatus'] ?? null;
+        $rmErrorCode = $data['iErrCode'] ?? null;
         $finalStatus = RmBulkSms::mapRouteMobileStatus($rmStatus);
 
         if ($finalStatus === RmBulkSms::STATUS_DELIVERED) {
@@ -42,11 +45,17 @@ class SmsCallbackController extends Controller
                 $rmStatus,
                 $data
             );
-        } elseif ($finalStatus === RmBulkSms::STATUS_FAILED) {
+        } elseif ($finalStatus === RmBulkSms::STATUS_FAILED ) {
             $sms->markAsFailed(
                 $rmStatus,
                 $data,
-                "Delivery report (failed)"
+                "DLR response status failed with some errors"
+            );
+        } elseif ($finalStatus === RmBulkSms::STATUS_SENT ) {
+            $sms->markAsSent(
+               $dlrMessageId,
+               $rmStatus,
+               $data
             );
         } else {
             $sms->update([
