@@ -10,7 +10,6 @@ Route::prefix('route-mobile')
         Route::post('/bulk-sms-bd/send', 'sendBulkSmsBd');
     });
 
-
 Route::prefix('callback')
     ->as('callback.')
     ->controller(SmsCallbackController::class)

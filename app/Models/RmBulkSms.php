@@ -111,7 +111,6 @@ class RmBulkSms extends Model
      * Status of the message from DLR push API from route mobile. 
      * ('DELIVRD', 'ACKED', 'ENROUTE', 'ACCEPTED', 'UNKNOWN', 'EXPIRED', 'DELETED', 'UNDELIV', 'REJECTD')
      */
-
     public static function mapRouteMobileStatus(string $rmStatus): string
     {
         return match (strtoupper($rmStatus)) {

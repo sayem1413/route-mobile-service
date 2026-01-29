@@ -36,8 +36,8 @@ class SmsCallbackController extends Controller
         if (!$sms) {
             return response()->json(['error' => 'RMSMS Data not found'], 404);
         }
+        
         $rmStatus = $data['sStatus'] ?? null;
-        $rmErrorCode = $data['iErrCode'] ?? null;
         $finalStatus = RmBulkSms::mapRouteMobileStatus($rmStatus);
 
         if ($finalStatus === RmBulkSms::STATUS_DELIVERED) {
