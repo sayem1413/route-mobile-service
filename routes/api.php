@@ -49,6 +49,15 @@ Route::post('file-test', function (Request $request) {
 
 function base64ToUploadedFile(string $base64): UploadedFile
 {
+    if (! preg_match(
+        '/^data:(application\/pdf|image\/(jpeg|jpg|png));base64,/',
+        $base64
+    )) {
+        throw new InvalidArgumentException(
+            'The document must be a valid PDF or image base64 string.'
+        );
+    }
+    
     [$meta, $content] = explode(',', $base64);
 
     preg_match('/data:(.*?);base64/', $meta, $matches);
