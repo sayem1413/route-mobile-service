@@ -31,6 +31,7 @@ Route::post('file-test', function (Request $request) {
     // dd($base64);
 
     $res_file = base64ToUploadedFile($base64);
+    // dd($res_file);
 
     return response()->json([
         'original' => [
@@ -47,21 +48,21 @@ Route::post('file-test', function (Request $request) {
 });
 
 
-function base64ToUploadedFile(string $base64): UploadedFile
+function base64ToUploadedFile(string $base64): UploadedFile|null
 {
-    if (! preg_match(
-        '/^data:(application\/pdf|image\/(jpeg|jpg|png));base64,/',
-        $base64
-    )) {
-        throw new InvalidArgumentException(
-            'The document must be a valid PDF or image base64 string.'
-        );
+    if (! preg_match('/^data:(application\/pdf|image\/(jpeg|jpg|png));base64,/', $base64)) {
+        return null;
     }
-    
-    [$meta, $content] = explode(',', $base64);
+    [$meta, $content] = explode(',', $base64, 2);
 
-    preg_match('/data:(.*?);base64/', $meta, $matches);
+    if (! preg_match('/^data:(.*?);base64$/', $meta, $matches)) {
+        return null;
+    }
     $mime = $matches[1];
+
+    if (base64_decode($content, true) === false) {
+        return null;
+    }
 
     $extension = match ($mime) {
         'application/pdf' => 'pdf',
@@ -69,6 +70,10 @@ function base64ToUploadedFile(string $base64): UploadedFile
         'image/png' => 'png',
         default => throw new \Exception('Unsupported file type'),
     };
+
+    if (! $extension) {
+        return null;
+    }
 
     $fileName = Str::uuid() . '.' . $extension;
     $filePath = sys_get_temp_dir() . '/' . $fileName;
