@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FileToBase64Request;
+use App\Http\Requests\CreatePDFFromFilesRequest;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
+use setasign\Fpdi\Fpdi;
 
 class FileConvertionController extends Controller
 {
@@ -70,5 +72,84 @@ class FileConvertionController extends Controller
             null,
             true
         );
+    }
+
+    public function createPdfFromFiles(CreatePDFFromFilesRequest $request)
+    {
+        $files = array_merge($request['files'], ['https://picsum.photos/id/237/200/300', 'https://picsum.photos/seed/picsum/200/300', 'https://pdfobject.com/pdf/sample.pdf']);;
+
+        $outputPath = storage_path('app/public/merged.pdf');
+
+        $this->mergeMultipleFilesToSinglePDF($files, $outputPath);
+
+        return response()->download($outputPath);
+    }
+
+    private function mergeMultipleFilesToSinglePDF(array $files, string $outputPath): string
+    {
+        $pdf = new Fpdi();
+
+        $pageWidth = 210;
+        $pageHeight = 297;
+
+        foreach ($files as $file) {
+
+            $pdf->AddPage('P', [$pageWidth, $pageHeight]);
+
+            if ($file instanceof UploadedFile) {
+                $extension = strtolower($file->getClientOriginalExtension());
+                $filePath = $file->getRealPath();
+            } elseif (filter_var($file, FILTER_VALIDATE_URL)) {
+                $extension = pathinfo(parse_url($file, PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
+                $tempFile = tempnam(sys_get_temp_dir(), 'pdfimg_') . '.' . $extension;
+                file_put_contents($tempFile, file_get_contents($file));
+                $filePath = $tempFile;
+            }else {
+                $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                $filePath = $file;
+            }
+
+            if ($extension === 'pdf') {
+
+                $pageCount = $pdf->setSourceFile($filePath);
+
+                for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                    $template = $pdf->importPage($pageNo);
+                    $size = $pdf->getTemplateSize($template);
+
+                    $scaleX = $pageWidth / $size['width'];
+                    $scaleY = $pageHeight / $size['height'];
+                    $scale = min($scaleX, $scaleY);
+
+                    $w = $size['width'] * $scale;
+                    $h = $size['height'] * $scale;
+
+                    $x = ($pageWidth - $w) / 2;
+                    $y = ($pageHeight - $h) / 2;
+
+                    $pdf->useTemplate($template, $x, $y, $w, $h);
+                }
+
+            } elseif (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+
+                list($width, $height) = getimagesize($filePath);
+
+                $scaleX = $pageWidth / $width;
+                $scaleY = $pageHeight / $height;
+                $scale = min($scaleX, $scaleY);
+
+                $w = $width * $scale;
+                $h = $height * $scale;
+
+                $x = ($pageWidth - $w) / 2;
+                $y = ($pageHeight - $h) / 2;
+
+                $pdf->Image($filePath, $x, $y, $w, $h, strtoupper($extension));
+            }
+        }
+
+        $pdf->Output('F', $outputPath);
+
+        return $outputPath;
     }
 }

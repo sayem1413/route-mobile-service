@@ -23,5 +23,6 @@ Route::prefix('convert')
     ->controller(FileConvertionController::class)
     ->group(function () {
         Route::post('file-to-base64', 'convertFileToBase64')->name('file.to.base64');
+        Route::post('files-to-pdf', 'createPdfFromFiles')->name('files.to.pdf');
     });
 
